@@ -1,8 +1,12 @@
 {
   "name": "dsh-codex-migrate",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Migrate Codex CLI conversations, MCP servers, memories and project files into DeepSeek Harness sessions, workspaces and MCP registrations. 把 Codex CLI 的对话、MCP、记忆与项目文件迁移为 DSH 会话、工作区与 MCP 注册。",
   "keywords": ["dsh", "deepseek-harness", "codex", "migration", "plugin", "dsh-plugin"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polarskicpl/dsh-codex-migrate.git"
+  },
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
