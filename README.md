@@ -1,8 +1,6 @@
 # dsh-codex-migrate
 
-<!-- 宣传图占位:把图放入 images/banner.png 后,解除下一行注释即可显示:
 ![dsh-codex-migrate banner](https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.png)
--->
 
 [中文](#中文) · [English](#english)
 

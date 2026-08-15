@@ -1,8 +1,6 @@
 # dsh-codex-migrate
 
-<!-- 宣传图占位:建 GitHub 仓库后把图放入 images/banner.png,并在下一行解除注释、把 URL 换成你的仓库 raw 地址:
-![dsh-codex-migrate banner](https://raw.githubusercontent.com/<your-account>/dsh-codex-migrate/main/images/banner.png)
--->
+![dsh-codex-migrate banner](https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.png)
 
 把 [Codex CLI](https://github.com/openai/codex) 的历史迁移进
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)(DSH):
