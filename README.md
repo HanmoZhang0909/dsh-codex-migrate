@@ -30,6 +30,10 @@ dsh plugin --profile web add dsh-codex-migrate
 (或手动把 `cordis.patch.yml` 里的行合并进你的 profile patch),然后重启 DSH。
 设置面板位于 **设置 → Codex 迁移**。
 
+包发布在 npm:[dsh-codex-migrate](https://www.npmjs.com/package/dsh-codex-migrate)
+(`dsh plugin add` 按包名从 npm registry 拉取;源码见
+[GitHub 仓库](https://github.com/polarskicpl/dsh-codex-migrate))。
+
 ### 配置
 
 | 键 | 默认 | 含义 |
@@ -106,6 +110,11 @@ dsh plugin --profile web add dsh-codex-migrate
 
 (or add the row from `cordis.patch.yml` to your profile patch manually), then
 restart DSH. The settings panel appears under **Settings → Codex Migration**.
+
+The package is published on npm:
+[dsh-codex-migrate](https://www.npmjs.com/package/dsh-codex-migrate)
+(`dsh plugin add` resolves the name from the npm registry; source lives in the
+[GitHub repository](https://github.com/polarskicpl/dsh-codex-migrate)).
 
 ### Configure
 
