@@ -1,6 +1,6 @@
 # dsh-codex-migrate
 
-![dsh-codex-migrate banner](https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.png)
+![dsh-codex-migrate banner](https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.jpg)
 
 [中文](#中文) · [English](#english)
 

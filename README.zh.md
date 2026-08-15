@@ -1,6 +1,6 @@
 # dsh-codex-migrate
 
-![dsh-codex-migrate banner](https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.png)
+![dsh-codex-migrate banner](https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.jpg)
 
 把 [Codex CLI](https://github.com/openai/codex) 的历史迁移进
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)(DSH):
