@@ -3,3 +3,5 @@ node_modules/
 .smoke-out/
 .npm-cache/
 *.log
+PUBLISH-GUIDE.md
+PUBLISH-NOTES.md
