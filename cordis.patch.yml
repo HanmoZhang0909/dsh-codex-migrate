@@ -1,0 +1,37 @@
+# dsh-codex-migrate bundle patch — one insert over the profile's empty root.
+# Rows in later layers address this row by id `dsh-codex-migrate` (last write wins).
+- insert:
+    - id: dsh-codex-migrate
+      name: 'dsh-codex-migrate'
+      config:
+        # Codex data directory; empty = auto-detect (~/.codex).
+        codexDir: ''
+        # Output directory for migrated artifacts; empty = <DSH_HOME>/codex-sync.
+        outputDir: ''
+        # en | zh | auto(follow the UI locale reported by the client).
+        language: 'en'
+        syncIntervalMinutes: 0
+        autoSync: false
+        includeSessions: true
+        includeArchived: true
+        includeMcp: true
+        includeMemories: true
+        includeAgentsMd: true
+        includeProjectFiles: false
+        importAsDshSessions: true
+        includeUserSessions: true
+        includeSubagentSessions: false
+        includeUnknownSessions: true
+        sessionMode: 'new'
+        selectedSessionIds: []
+        excludedSessionIds: []
+        projectMode: 'all'
+        selectedProjects: []
+        mcpMode: 'all'
+        selectedMcpNames: []
+        maxMessagesPerSession: 600
+        maxToolOutputChars: 6000
+        maxProjectFileBytes: 524288
+        maxProjectFilesPerSync: 2000
+        dshMessageMaxChars: 20000
+        maxDshTurns: 200

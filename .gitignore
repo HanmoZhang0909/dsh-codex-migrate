@@ -1,0 +1,5 @@
+node_modules/
+.smoke-en/
+.smoke-out/
+.npm-cache/
+*.log
