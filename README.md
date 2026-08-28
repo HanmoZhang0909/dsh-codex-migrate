@@ -1,168 +1,211 @@
 # dsh-codex-migrate
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.png" alt="dsh-codex-migrate banner" width="520">
+  <a href="https://github.com/polarskicpl/dsh-codex-migrate"><img src="https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/banner.webp" alt="dsh-codex-migrate banner" width="520"></a>
+  <p><strong>Predictable one-way structured migration between Codex and DeepSeek Harness</strong></p>
+  <p>English · <a href="./README.zh.md">中文</a></p>
 </div>
 
-[中文](#中文) · [English](#english)
+Version 2.0 turns the plugin into a two-sided migration bridge. Import Codex tasks into DSH, or move one DSH conversation—or every active conversation in a project—into Codex. Every action is an explicit one-time import; the source conversation is never modified later by background synchronization.
 
-## 中文
+## What's new in v2.0
 
-把 [Codex CLI](https://github.com/openai/codex) 的历史迁移进
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)(DSH):
+- **Two-way one-shot imports:** Codex → DSH and DSH → Codex both convert history into the target's structured conversation format instead of flattening everything into plain text.
+- **Continue in Codex:** a native Codex action below DSH assistant replies imports the current conversation and opens the new Codex task.
+- **Continue in DSH:** the bundled MCP server and `continue-in-dsh` Skill let a Codex user say “Continue in DSH” to import and open the current task in DSH.
+- **Batch migration by project:** import every unarchived conversation in a DSH project in one operation while preserving the original workspace path.
+- **Project-less Codex tasks:** conversations without a Codex project are imported into the canonical `(no project)` / `codex-unprojected` workspace.
+- **MCP memory Beta:** `remember_memory`, `search_memory`, and `forget_memory` provide local persistent memories with global, project, and conversation scopes.
+- **Three memory sources:** independently import Codex Markdown memory, bridge MCP memory, and Memory Skill storage.
+- **Faster inventory refreshes:** an incremental cache reparses only new or changed files and isolates corrupted sessions.
+- **Refined UI:** simplified cards and lists, fixed live language switching, and consistent actions, badges, spacing, and dark/light styling.
 
-- **对话 → 真正的 DSH 会话**:用户轮次、助手轮次与工具调用按 DSH 原生事件格式
-  转换(工具卡片默认折叠),按项目挂载到对应工作区,侧边栏直接可见、可续聊。
-- **MCP 服务器 → 注册行**:`config.toml` 的 `[mcp_servers.*]` 变成
-  `@deepseek-ai/dsh-mcp-client` cordis 行,并生成一段可直接复制给任意 agent 的
-  **注册提示词**,让 agent 帮你完成注册。
-- **记忆与 AGENTS.md**:复制到输出目录。
-- **项目文件(可选)**:按项目复制文本文件。
+## Entry points
 
-内置中英双语(界面跟随 DSH 语言;生成产物跟随 `language` 配置)。
+The Codex icon appears beside DSH's native copy and feedback actions:
 
-### 安装
+<div align="center">
+  <img src="https://raw.githubusercontent.com/polarskicpl/dsh-codex-migrate/main/images/continue-in-codex-action.png" alt="Continue in Codex action in DSH" width="300">
+</div>
 
-```bash
-dsh plugin --profile web add dsh-codex-migrate
-```
+- Select the **Codex icon** to import one DSH conversation and navigate to Codex.
+- Open **Settings → Codex Migration → Batch Migration by Project** to import every unarchived conversation in a project.
+- Say **“Continue in DSH”** in Codex to import the current Codex task and navigate to DSH.
 
-(或手动把 `cordis.patch.yml` 里的行合并进你的 profile patch),然后重启 DSH。
-设置面板位于 **设置 → Codex 迁移**。
+> Version 2.0 intentionally does not provide shared conversations, background bidirectional sync, conflict merging, or a Codex inline monitor. Each import is inspectable, repeatable, and cannot silently rewrite the same history on both sides.
 
-包发布在 npm:[dsh-codex-migrate](https://www.npmjs.com/package/dsh-codex-migrate)
-(`dsh plugin add` 按包名从 npm registry 拉取;源码见
-[GitHub 仓库](https://github.com/polarskicpl/dsh-codex-migrate))。
+## Installation: configure both sides
 
-### 配置
+The complete experience has two local components:
 
-| 键 | 默认 | 含义 |
+| Component | Installed in | Purpose |
 | --- | --- | --- |
-| `codexDir` | `''` | Codex 数据目录;留空 = 自动检测(`~/.codex`) |
-| `outputDir` | `''` | 产物目录;留空 = `<DSH_HOME>/codex-sync` |
-| `language` | `en` | 生成产物的语言:`en` \| `zh` \| `auto`(跟随界面语言) |
-| `sessionMode` | `new` | `all` \| `new` \| `selected` |
-| `projectMode` | `all` | `all` \| `selected` |
-| `includeSubagentSessions` | `false` | 子智能体线程默认隐藏 |
-| `importAsDshSessions` | `true` | 生成真正的 DSH 会话(取消则只出 Markdown) |
-| … | | 频率、上限、MCP/记忆开关等,见 `cordis.patch.yml` |
+| `dsh-codex-migrate` | DSH | Reads, converts, and creates DSH/Codex conversations; hosts the loopback-only handoff service |
+| `dsh-codex-bridge` MCP + Skill | Codex | Provides “Continue in DSH,” MCP memory tools, and the trigger workflow |
 
-### 生成产物(`outputDir`)
+The DSH plugin alone supports settings-page imports and DSH → Codex actions. Install the Codex companion as well to start imports from Codex or use MCP memory.
 
-```
-codex-sync/
-├── config.json / state.json / diagnostics.json
-├── index.md                     # 会话索引
-├── sessions/*.md                # 每个会话的 Markdown
-├── projects/                    # 可选的项目文件副本
-├── memories/ , AGENTS.md
-└── mcp/
-    ├── cordis-mcp-rows.yml      # 可直接合并的 insert 块
-    ├── report.md
-    └── register-prompt.md       # 发给任意 agent 即可完成注册
-```
+### Requirements
 
-### 安全边界
+- A working DeepSeek Harness installation.
+- Codex desktop, Codex CLI, or the Codex IDE extension.
+- `node` available in the terminal; Node.js 18 or newer is recommended.
+- Commands below use the DSH `web` profile. Replace `web` if you use another profile.
 
-这是一个**宿主插件**:运行在 DSH 进程中,没有会话级沙箱。它**只写
-`outputDir` 内部、只读 Codex 目录**。注册迁移过来的 MCP 之前请先审阅你的
-Codex MCP 配置——注册后这些工具对会话内所有 agent(含子代理)可见;SSH 类
-服务器建议使用命令白名单(`--whitelist` / `commandWhitelist`)而非黑名单。
+### Step 1: install the DSH plugin
 
-### 开发
-
-```bash
-npm run build          # 把浏览器面打包成 lib/client.js
-```
-
-宿主面是纯 ESM,无需构建;浏览器面把 `src/client/index.js` 包装成 DSH Web 外壳
-消费的 `window.__ModuleLoader__.load` 形式(运行时 require 由装载器的模块表解析)。
-
-### 许可证
-
-MIT
-
----
-
-## English
-
-Migrate your [Codex CLI](https://github.com/openai/codex) history into
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH):
-
-- **Conversations → real DSH sessions**: user turns, assistant turns and tool
-  calls are converted into native DSH event format (tool cards collapse by
-  default), mounted into per-project workspaces, and appear in the sidebar.
-- **MCP servers → registration rows**: `config.toml` `[mcp_servers.*]` entries
-  become `@deepseek-ai/dsh-mcp-client` cordis rows, plus a copy-paste
-  **registration prompt** you can hand to any agent to complete the
-  registration for you.
-- **Memories & AGENTS.md**: copied into the output directory.
-- **Project files (optional)**: text files copied per project.
-
-English and Chinese are both built in (UI follows the DSH locale; generated
-artifacts follow the `language` config).
-
-### Install
+First installation:
 
 ```bash
 dsh plugin --profile web add dsh-codex-migrate
 ```
 
-(or add the row from `cordis.patch.yml` to your profile patch manually), then
-restart DSH. The settings panel appears under **Settings → Codex Migration**.
+Upgrade from an earlier version:
 
-The package is published on npm:
-[dsh-codex-migrate](https://www.npmjs.com/package/dsh-codex-migrate)
-(`dsh plugin add` resolves the name from the npm registry; source lives in the
-[GitHub repository](https://github.com/polarskicpl/dsh-codex-migrate)).
+```bash
+dsh plugin --profile web update dsh-codex-migrate
+```
 
-### Configure
+Restart DSH, then open **Settings → Codex Migration**. You should see **Imported Conversations**, **Batch Migration by Project**, and **Memory Import**.
+
+### Step 2: get the Codex companion
+
+The MCP server and Skill are bundled in this repository, so keep the cloned directory available locally:
+
+```bash
+git clone https://github.com/polarskicpl/dsh-codex-migrate.git
+cd dsh-codex-migrate
+```
+
+If you already cloned the repository, update it with `git pull`.
+
+### Step 3: register the MCP server in Codex
+
+Windows PowerShell:
+
+```powershell
+$bridge = (Resolve-Path ".\codex\dsh-codex-bridge\mcp\server.mjs").Path
+codex mcp add dshCodexBridge -- node $bridge --stdio
+```
+
+macOS / Linux:
+
+```bash
+bridge="$(pwd)/codex/dsh-codex-bridge/mcp/server.mjs"
+codex mcp add dshCodexBridge -- node "$bridge" --stdio
+```
+
+If the same MCP name is already registered with an old path, run this first and then repeat the add command:
+
+```bash
+codex mcp remove dshCodexBridge
+```
+
+Verify the registration:
+
+```bash
+codex mcp list
+```
+
+Codex also supports direct `~/.codex/config.toml` configuration, but the CLI avoids path and TOML escaping mistakes. See the official [Codex MCP documentation](https://developers.openai.com/codex/extend/mcp).
+
+### Step 4: install the `continue-in-dsh` Skill
+
+Windows PowerShell:
+
+```powershell
+$skills = Join-Path $HOME ".agents\skills"
+New-Item -ItemType Directory -Force -Path $skills | Out-Null
+Copy-Item -Recurse -Force ".\codex\dsh-codex-bridge\skills\continue-in-dsh" $skills
+```
+
+macOS / Linux:
+
+```bash
+mkdir -p ~/.agents/skills
+cp -R ./codex/dsh-codex-bridge/skills/continue-in-dsh ~/.agents/skills/
+```
+
+Codex discovers user skills in `~/.agents/skills`. Restart Codex if an updated skill does not appear immediately. See the official [Codex Skill documentation](https://developers.openai.com/codex/build-skills).
+
+### Step 5: restart and verify
+
+1. Start DSH with the migration plugin enabled.
+2. Restart Codex and confirm that `dshCodexBridge` is connected in `/mcp`.
+3. Confirm that `continue-in-dsh` appears in `/skills`.
+4. Create a test Codex task and enter: `Continue in DSH`.
+5. DSH should open the imported conversation. The Agent confirms with: `已同步对话到 DSH。`
+
+The MCP server exposes four tools:
+
+| Tool | Purpose |
+| --- | --- |
+| `continue_in_dsh` | Import the current Codex task once and open DSH |
+| `remember_memory` | Save a local persistent memory |
+| `search_memory` | Search memories in one scope |
+| `forget_memory` | Delete a memory by ID |
+
+### Quick MCP memory Beta test
+
+1. In one Codex task, ask: `Use DSH MCP to remember that my test code is ocean-blue-728.`
+2. Open another Codex task and ask: `Search DSH MCP memory and tell me my test code.`
+3. After it returns `ocean-blue-728`, ask it to forget that memory.
+
+Memories are stored locally at `~/.codex/dsh-codex-bridge/memory.jsonl`. They are not uploaded by this plugin and do not re-enable shared conversations.
+
+## Migrated content
+
+| Content | Codex → DSH | DSH → Codex |
+| --- | :---: | :---: |
+| User and assistant messages | ✓ | ✓ |
+| Tool calls and tool results | ✓ | ✓ |
+| Latest regenerated assistant reply | ✓ | ✓ |
+| One conversation | ✓ | ✓ |
+| Project-less conversations | ✓ | — |
+| Batch import by project | ✓ | ✓ |
+| `AGENTS.md` and project text files | Optional | — |
+| Codex / MCP / Memory Skill memories | Optional | — |
+
+DSH → Codex uses Codex's supported external-agent session import path. Every task in a project batch receives the same original working directory, while Codex remains responsible for sidebar organization.
+
+## Loading performance
+
+The first refresh scans existing Codex sessions. Later refreshes reuse a `size + mtime + hash` incremental cache and parse only new or changed JSONL files. Removed files are dropped from the cache and corrupted files are isolated.
+
+The cache lives under `inventory/` in the migration output directory. Removing it only causes one full rebuild; it does not delete source conversations.
+
+## Key configuration
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `codexDir` | `''` | Codex data dir; empty = auto-detect (`~/.codex`) |
-| `outputDir` | `''` | Where artifacts live; empty = `<DSH_HOME>/codex-sync` |
-| `language` | `en` | `en` \| `zh` \| `auto` (follow UI locale) for generated artifacts |
-| `sessionMode` | `new` | `all` \| `new` \| `selected` |
-| `projectMode` | `all` | `all` \| `selected` |
-| `includeSubagentSessions` | `false` | Subagent threads are hidden by default |
-| `importAsDshSessions` | `true` | Create real DSH sessions (uncheck for Markdown-only) |
-| … | | frequency, caps, MCP/memories toggles — see `cordis.patch.yml` |
+| `codexDir` | `''` | Codex data directory; empty auto-detects `~/.codex` |
+| `outputDir` | `''` | Migration output; empty uses `<DSH_HOME>/codex-sync` |
+| `language` | `en` | `en`, `zh`, or `auto` to follow the UI locale |
+| `sessionMode` | `new` | `all`, `new`, or `selected` |
+| `projectMode` | `all` | `all` or `selected` |
+| `includeMemories` | `true` | Import Codex Markdown memory |
+| `includeMcpMemories` | `true` | Import bridge MCP persistent memory (Beta) |
+| `includeMemorySkill` | `true` | Import Memory Skill storage |
+| `importAsDshSessions` | `true` | Create native DSH sidebar conversations |
+| `bridgeEnabled` | `true` | Enable the loopback-only one-shot handoff service |
 
-### Generated artifacts (`outputDir`)
+## Security boundary
 
-```
-codex-sync/
-├── config.json / state.json / diagnostics.json
-├── index.md                     # session index
-├── sessions/*.md                # per-session Markdown
-├── projects/                    # optional project file copies
-├── memories/ , AGENTS.md
-└── mcp/
-    ├── cordis-mcp-rows.yml      # DSH-ready insert block
-    ├── report.md
-    └── register-prompt.md       # paste to any agent to finish registration
-```
+- The DSH handoff service binds only to `127.0.0.1`.
+- Mutations require a generated installation token; the token is never stored in this repository.
+- Disabling the DSH plugin also stops the handoff service.
+- MCP memory stays local and does not automatically send raw project files or complete conversations to third-party services.
+- The plugin writes only to the configured `outputDir`, DSH session storage, and the local MCP memory file.
 
-### Security boundary
-
-This is a **host plugin**: it runs in the DSH process without a per-session
-sandbox. It only **writes inside `outputDir`** and only **reads the Codex
-directory**. Review your Codex MCP config before registering migrated MCP
-servers — after registration those tools are visible to every agent in a
-session, including subagents. For SSH-style servers prefer a command
-whitelist (`--whitelist` / `commandWhitelist`) over a blacklist.
-
-### Development
+## Development and release checks
 
 ```bash
-npm run build          # bundles the client half into lib/client.js
+npm run build
+npm test
+npm run test:bridge
+npm pack --dry-run
 ```
 
-The host half is plain ESM and needs no build step. The client half wraps
-`src/client/index.js` into the `window.__ModuleLoader__.load` form consumed by
-the DSH web shell (runtime requires are resolved by the loader's module table).
-
-### License
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 MIT
