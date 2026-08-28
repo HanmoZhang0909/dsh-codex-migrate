@@ -1,0 +1,12 @@
+interface:
+  display_name: "Continue in DSH"
+  short_description: "Import this Codex task into DSH and open it."
+  default_prompt: "Use $continue-in-dsh to continue this task in DSH."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "dshCodexBridge"
+      description: "Local one-way Codex to DSH migration and persistent memory server"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

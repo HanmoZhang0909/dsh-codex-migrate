@@ -1,0 +1,10 @@
+{
+  "conversationId": "dsh-1",
+  "projectKey": "",
+  "archived": true,
+  "events": [
+    {"id":"dsh-user-1","role":"user","content":"请检查项目","createdAtMs":1787706001000},
+    {"id":"dsh-assistant-1","role":"assistant","content":"最新版本回答","createdAtMs":1787706004000,"toolCalls":[{"name":"inspect","arguments":{"scope":"src"}}]},
+    {"id":"dsh-assistant-1","role":"assistant","content":"最新版本回答","createdAtMs":1787706004000,"toolCalls":[{"name":"inspect","arguments":{"scope":"src"}}]}
+  ]
+}

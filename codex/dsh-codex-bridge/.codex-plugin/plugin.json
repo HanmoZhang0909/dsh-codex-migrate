@@ -1,0 +1,28 @@
+{
+  "name": "dsh-codex-bridge",
+  "version": "2.0.0",
+  "description": "Import Codex tasks into DeepSeek Harness and manage local persistent MCP memory.",
+  "author": {
+    "name": "polarskicpl",
+    "url": "https://github.com/polarskicpl"
+  },
+  "homepage": "https://github.com/polarskicpl/dsh-codex-migrate",
+  "repository": "https://github.com/polarskicpl/dsh-codex-migrate",
+  "license": "MIT",
+  "keywords": ["dsh", "codex", "conversation", "handoff", "mcp"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "DSH Codex Migration",
+    "shortDescription": "Import Codex tasks into DSH with persistent memory.",
+    "longDescription": "Perform one-way structured task imports into DeepSeek Harness and manage local persistent memories through MCP tools.",
+    "developerName": "polarskicpl",
+    "category": "Productivity",
+    "capabilities": ["Write"],
+    "websiteURL": "https://github.com/polarskicpl/dsh-codex-migrate",
+    "defaultPrompt": ["在 DSH 继续", "Continue in DSH"],
+    "brandColor": "#4F8CFF",
+    "composerIcon": "./assets/dsh.svg",
+    "logo": "./assets/dsh.svg"
+  },
+  "mcpServers": "./.mcp.json"
+}

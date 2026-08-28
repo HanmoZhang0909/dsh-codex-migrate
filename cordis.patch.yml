@@ -10,12 +10,17 @@
         outputDir: ''
         # en | zh | auto(follow the UI locale reported by the client).
         language: 'en'
+        # Local one-shot handoff transport. No window scanning or UI injection.
+        bridgeEnabled: true
+        bridgePort: 46371
         syncIntervalMinutes: 0
         autoSync: false
         includeSessions: true
         includeArchived: true
         includeMcp: true
         includeMemories: true
+        includeMcpMemories: true
+        includeMemorySkill: true
         includeAgentsMd: true
         includeProjectFiles: false
         importAsDshSessions: true

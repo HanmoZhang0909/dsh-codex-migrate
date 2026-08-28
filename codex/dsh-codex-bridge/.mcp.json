@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "dshCodexBridge": {
+      "title": "DSH Codex Migration",
+      "description": "Import Codex tasks into DeepSeek Harness and manage local persistent memory.",
+      "cwd": ".",
+      "command": "node",
+      "args": ["./mcp/server.mjs", "--stdio"],
+      "env_vars": ["DSH_CODEX_BRIDGE_PORT", "DSH_CODEX_BRIDGE_STATE", "DSH_CODEX_BRIDGE_TOKEN_FILE", "DSH_CODEX_BRIDGE_MEMORY_FILE", "HOME", "USERPROFILE", "LOCALAPPDATA"],
+      "startup_timeout_sec": 10,
+      "tool_timeout_sec": 30
+    }
+  }
+}
