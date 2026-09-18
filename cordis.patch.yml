@@ -40,6 +40,8 @@
         maxProjectFilesPerSync: 2000
         dshMessageMaxChars: 20000
         maxDshTurns: 200
+        # Cap on tool output written into the DSH session (0 = maxToolOutputChars).
+        dshToolOutputChars: 0
         # Keep only the newest N turns of a thread in the DSH session (0 = keep
         # the previous behaviour of importing from the beginning).
         keepLatestTurns: 0
