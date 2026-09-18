@@ -187,6 +187,7 @@ The cache lives under `inventory/` in the migration output directory. Removing i
 | `includeMcpMemories` | `true` | Import bridge MCP persistent memory (Beta) |
 | `includeMemorySkill` | `true` | Import Memory Skill storage |
 | `importAsDshSessions` | `true` | Create native DSH sidebar conversations |
+| `keepLatestTurns` | `0` | Keep only the newest N turns in the native session (`0` = import from the beginning); `maxDshTurns` counts from the OLDEST turn, so a long thread needs this to reach the current work |
 | `bridgeEnabled` | `true` | Enable the loopback-only one-shot handoff service |
 
 ## Security boundary

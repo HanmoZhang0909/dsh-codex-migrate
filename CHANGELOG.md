@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Codex → DSH imports on DSH 0.1.5-rc.2.** The import used the flat session-persistence seam (`persistence.create(header)` + `persistence.append(id, events)`), which rc.2 replaced with per-session handles (`create(header) → SessionHandle`, then `handle.append/flush/close`). Because the flat method is what the guard checked, every import was skipped — and reported as `sessionPersistence 服务不可用`, which pointed at the service instead of the API. Both seams are now supported, so one build works on either harness.
+- **Imported sessions failed to open.** rc.2 stores each settled assistant message together with the chunk `stream` that produced it and rejects a log whose `assistant/message` lacks it (`... is corrupt: seed assistant/message at index N has invalid settlement fields`). The emitted events now embed a stream rebuilt from the settled content blocks.
+- **Header format version.** The handle-based API writes headers in the current log format and refuses a version-less header; the header is now stamped with the installed `SESSION_FORMAT_VERSION`.
+- **Merged thread order used the file creation stamp.** Rollout files are merged in file-name order, but a file keeps growing after it is created, so the newest exchange can sit in a file that sorts before newer-named ones — the tail of the imported conversation was then older than the thread's real latest turns. The merge now orders files by their last record timestamp.
+- **Long threads imported their OLDEST turns.** `maxDshTurns` counts forward from the first turn, so a month-long thread never reached the recent work. The new `keepLatestTurns` option keeps the newest N turns instead (`0` keeps the previous behaviour).
+
+### Performance
+
+- Rollout files larger than 48 MB are read as a head window plus the newest tail instead of whole, and the inventory indexer does the same. A thread holding several hundred MB in one JSONL file used to abort the harness process with `FATAL ERROR: Reached heap limit` during a sync.
+
 ## 2.0.0 — 2026-08-28
 
 Version 2.0 replaces the experimental shared-conversation architecture with explicit, predictable one-way structured imports. It also introduces the Codex companion MCP/Skill package, local MCP memory, native DSH → Codex actions, project batches, and a faster settings experience.

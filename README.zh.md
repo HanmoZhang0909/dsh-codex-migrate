@@ -187,6 +187,7 @@ DSH → Codex 使用 Codex 支持的外部 Agent 会话导入路径。批量迁�
 | `includeMcpMemories` | `true` | 导入桥接 MCP 持久记忆（Beta） |
 | `includeMemorySkill` | `true` | 导入 Memory Skill 存储 |
 | `importAsDshSessions` | `true` | 创建可在 DSH 侧栏打开的原生会话 |
+| `keepLatestTurns` | `0` | 原生会话只保留最新的 N 轮（`0` = 从头导入）；`maxDshTurns` 是从**最早**的轮次开始计数并截断的，长对话需要用这个选项才能导到最新进度 |
 | `bridgeEnabled` | `true` | 启用仅监听 `127.0.0.1` 的一次性交接服务 |
 
 ## 安全边界
